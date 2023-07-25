@@ -1,0 +1,13 @@
+node_modules
+.env
+private_sign.key
+private.key
+public_sign.key
+public.key
+message.txt
+malehanton.txt
+private_api_key.pem
+public_api_key.private_api_key
+test1.js
+
+

@@ -1,0 +1,31 @@
+{
+  "name": "cusbank",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js",
+    "dev": "nodemon security.js",
+    "lev": "nodemon test1.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vonage/server-sdk": "^3.6.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "fetch": "^1.1.0",
+    "jose": "^4.14.4",
+    "jsonwebtoken": "^9.0.1",
+    "morgan": "^1.10.0",
+    "node-jose": "^2.2.0",
+    "nodemailer": "^6.9.3",
+    "nodemon": "^2.0.22",
+    "oracledb": "^5.0.0",
+    "twilio": "^4.14.0"
+  }
+}
