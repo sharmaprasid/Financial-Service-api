@@ -106,25 +106,28 @@ const CardDeposit = async (cardnumber, amount, bin, pin) => {
             // console.log(amount);
 
             const balanceResult = await connection.execute(
-              `Select accountbalance from account where  bin=:bin and accountnumber=4000241000000105 `,
+              `Select accountbalance,customerid from account where  bin=:bin and accountnumber=:accountnumber `,
               {
                 bin,
-                // accountnumber,
+                accountnumber,
               }
             );
+
             console.log(accountnumber);
             // console.log(bin);
             console.log(balanceResult);
             let balance = balanceResult.rows[0][0];
             balance = balance + amount;
             console.log(balance);
-            await connection.execute(
+            const result = await connection.execute(
               `UPDATE account SET accountbalance = :balance WHERE accountnumber = :accountnumber`,
               {
                 accountnumber,
                 balance,
               }
             );
+            connection.commit();
+            console.log(result);
 
             const transactionResult = await connection.execute(
               `SELECT Transactionid.NEXTVAL FROM DUAL`
@@ -132,13 +135,14 @@ const CardDeposit = async (cardnumber, amount, bin, pin) => {
             const transactionid = transactionResult.rows[0][0];
 
             const debitamount = 0;
-            await connection.execute(
-              `INSERT INTO transaction(transactionid, cardnumber, debitamount, creditamount) VALUES (:transactionid, :cardnumber, :debitamount, :amount)`,
+            const result6 = await connection.execute(
+              `INSERT INTO transaction(transactionid,debitamount,creditamount,customerid,accountnumber) VALUES (:transactionid, :debitamount,:balance, :customerid,:accountnumber)`,
               {
+                customerid,
+                accountnumber,
                 transactionid,
-                amount,
-                cardnumber,
                 debitamount,
+                balance,
               }
             );
           } else {
@@ -156,6 +160,7 @@ const CardDeposit = async (cardnumber, amount, bin, pin) => {
             cardnumber,
           }
         );
+        console.log(resultpin);
         const pincountres = resultpin.rows[0][0];
         const pincount = pincountres + 1;
         await connection.execute(
@@ -291,7 +296,7 @@ const cardlessWithdraw = async (mobilenumber, bin, otp) => {
         mobilenumber,
       }
     );
-    // console.log(result);
+    console.log(result);
     const dbotp = result.rows[0][0];
     const amount = result.rows[0][1];
 
@@ -306,7 +311,7 @@ const cardlessWithdraw = async (mobilenumber, bin, otp) => {
       const customerid = accountResult.rows[0][2];
       const updatedbalance = balance - amount;
 
-      await connection.execute(
+      const update = await connection.execute(
         `UPDATE account SET ACCOUNTBALANCE = :updatedbalance WHERE customerid = :customerid and bin=:bin`,
         {
           customerid,
@@ -314,15 +319,7 @@ const cardlessWithdraw = async (mobilenumber, bin, otp) => {
           bin,
         }
       );
-
-      const card = await connection.execute(
-        `SELECT cardnumber FROM card WHERE accountnumber = :accountnumber`,
-        {
-          accountnumber,
-        }
-      );
-
-      const cardnumber = card.rows[0][0];
+      console.log(update);
 
       const transactionResult = await connection.execute(
         `SELECT Transactionid.NEXTVAL FROM DUAL`
@@ -331,15 +328,17 @@ const cardlessWithdraw = async (mobilenumber, bin, otp) => {
       const transactionid = transactionResult.rows[0][0];
 
       const creditamount = 0;
-      await connection.execute(
-        `INSERT INTO transaction(transactionid, cardnumber, debitamount, creditamount) VALUES (:transactionid, :cardnumber, :balance, :creditamount)`,
+      const result6 = await connection.execute(
+        `INSERT INTO transaction(transactionid,debitamount,creditamount,customerid,accountnumber) VALUES (:transactionid, :balance, :creditamount,:customerid,:accountnumber)`,
         {
+          customerid,
+          accountnumber,
           transactionid,
-          cardnumber,
           creditamount,
           balance,
         }
       );
+      console.log(result6);
     }
   } catch (error) {
     console.log(error);

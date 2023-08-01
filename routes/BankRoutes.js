@@ -33,18 +33,13 @@ router.post("/addbank", async (req, res) => {
     const verify = await jose.JWS.createVerify(verificationKey);
     const result = await verify.verify(signedData);
     const verifieddata = JSON.parse(result.payload.toString("utf8"));
-    console.log(verifieddata);
     const { encrypted } = verifieddata;
     const decryptionKey = await jose.JWK.asKey(privateKeyDecryption, "pem");
     const decrypt = await jose.JWE.createDecrypt(decryptionKey);
     const decrypted = await decrypt.decrypt(encrypted);
-    console.log(decrypted);
     const decrypteddata = JSON.parse(decrypted.payload.toString("utf8"));
-
     const { bankname, bankcontact, bankheadquater, bankemail } = decrypteddata;
-
     const bin = Math.floor(Math.random() * 1000 + 400000);
-
     if (bankcontact.length == 10) {
       await controller.addBank(
         bin,
@@ -72,31 +67,6 @@ router.post("/addbank", async (req, res) => {
     res.status(500).json({ message: "Error adding bank" });
   }
 });
-// router.post("/addbank", async (req, res) => {
-//   try {
-//     const { bankname, bankcontact, bankheadquater, bankemail } = req.body;
-
-//     const bin = Math.floor(Math.random() * 1000 + 400000);
-
-//     if (bankcontact.length == 10) {
-//       await controller.addBank(
-//         bin,
-//         bankname,
-//         bankcontact,
-//         bankheadquater,
-//         bankemail
-//       );
-//       res.status(200).json({ message: `${bin} added successfull` });
-//     } else {
-//       res
-//         .status(200)
-//         .json({ message: "Either bin or bankcontact are of invalid length " });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });
-
 router.get("/banks", async (req, res) => {
   try {
     const bank = await controller.getBanks();
@@ -123,9 +93,19 @@ router.get("/banks", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router.get("/:id", async (req, res) => {
+router.post("/getbankbybin", async (req, res) => {
   try {
-    const { id } = req.params;
+    const signedData = req.body.signed;
+    const verificationKey = await jose.JWK.asKey(publicKeyVerification, "pem");
+    const verify = await jose.JWS.createVerify(verificationKey);
+    const result = await verify.verify(signedData);
+    const verifieddata = JSON.parse(result.payload.toString("utf8"));
+    const { encrypted } = verifieddata;
+    const decryptionKey = await jose.JWK.asKey(privateKeyDecryption, "pem");
+    const decrypt = await jose.JWE.createDecrypt(decryptionKey);
+    const decrypted = await decrypt.decrypt(encrypted);
+    const decrypteddata = JSON.parse(decrypted.payload.toString("utf8"));
+    const { id } = decrypteddata;
     const bank = await controller.getBankByBin(id);
     if (!bank) {
       res.status(404).json({ error: "Bank not found" });
@@ -143,9 +123,19 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-router.get("/customers/:id", async (req, res) => {
+router.post("/getcustomersbybin", async (req, res) => {
   try {
-    const { id } = req.params;
+    const signedData = req.body.signed;
+    const verificationKey = await jose.JWK.asKey(publicKeyVerification, "pem");
+    const verify = await jose.JWS.createVerify(verificationKey);
+    const result = await verify.verify(signedData);
+    const verifieddata = JSON.parse(result.payload.toString("utf8"));
+    const { encrypted } = verifieddata;
+    const decryptionKey = await jose.JWK.asKey(privateKeyDecryption, "pem");
+    const decrypt = await jose.JWE.createDecrypt(decryptionKey);
+    const decrypted = await decrypt.decrypt(encrypted);
+    const decrypteddata = JSON.parse(decrypted.payload.toString("utf8"));
+    const { id } = decrypteddata;
     const customer = await controller.getCustomersByBin(id);
     const formattedCustomers = customer.map((customer) => {
       return {

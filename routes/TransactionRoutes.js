@@ -2,7 +2,6 @@ const express = require("express");
 const controller = require("../controller/TransactionController");
 const router = express.Router();
 const jose = require("node-jose");
-const publicKeyEncryption = require("fs").readFileSync("./public.key");
 const publicKeyEncryptionApi = require("fs").readFileSync(
   "./public_api_key.pem"
 );
